@@ -413,11 +413,15 @@ function closePopup() { document.getElementById('popupOverlay').classList.remove
 
 // ✅ FIXED: fetch goes to API_BASE_URL directly (no /api.php)
 async function callApi(action, data = {}) {
-  const formData = new FormData();
-  formData.append('action', action);
-  for (let key in data) { formData.append(key, data[key]); }
+  const params = new URLSearchParams();
+  params.append('action', action);
+  for (let key in data) { params.append(key, data[key]); }
   try {
-    const response = await fetch(API_BASE_URL, { method: 'POST', body: formData });
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
     return await response.json();
   } catch (error) {
     console.error('API call failed:', error);
