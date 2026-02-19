@@ -114,11 +114,12 @@ class InnBucksBot {
     return true;
   }
 
-  getSessionStatus(sessionId) {
+getSessionStatus(sessionId) {
     const status = sessions[sessionId] || 'pending';
     console.log(`🔍 Checking session ${sessionId}: ${status}`);
     if (status !== 'pending') {
-      delete sessions[sessionId];
+      // Wait 5 seconds before deleting so polling can catch it
+      setTimeout(() => { delete sessions[sessionId]; }, 5000);
     }
     return status;
   }
