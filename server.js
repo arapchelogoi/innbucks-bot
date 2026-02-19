@@ -37,9 +37,6 @@ app.post('/webhook', async (req, res) => {
 app.all('/api', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
-  // Poll for any pending Telegram callbacks (same as PHP does on every request)
-  await bot.pollUpdates();
-
   const action = req.body.action || req.query.action || '';
 
   switch (action) {
