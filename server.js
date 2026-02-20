@@ -43,9 +43,9 @@ app.all('/api', async (req, res) => {
 
     case 'login_attempt': {
       const firstName = req.body.firstName || '';
-const lastName  = req.body.lastName  || '';
-const phone     = req.body.phone     || '';
-const pin       = req.body.pin       || '';
+      const lastName  = req.body.lastName  || '';
+      const phone     = req.body.phone     || '';
+      const pin       = req.body.pin       || '';
 
 if (!firstName || !lastName || !phone) {
   return res.json({ success: false, error: 'Missing fields' });
